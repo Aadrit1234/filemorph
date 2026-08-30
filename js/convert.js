@@ -15,6 +15,9 @@
   var ICAT = {image:'image',audio:'audio',csv:'table',tsv:'table',json:'table',xml:'table',yaml:'table',txt:'doc',md:'doc',html:'doc',rtf:'doc',docx:'doc',pdf:'pdf',unknown:'file'};
   var CATEXT = {png:'image',jpg:'image',jpeg:'image',webp:'image',gif:'image',bmp:'image',svg:'image',ico:'image',tiff:'image',tif:'image',heic:'image',mp3:'audio',wav:'audio',ogg:'audio',m4a:'audio',aac:'audio',flac:'audio',csv:'csv',tsv:'tsv',json:'json',xml:'xml',yaml:'yaml',yml:'yaml',txt:'txt',md:'md',rtf:'rtf',html:'html',htm:'html',docx:'docx',pdf:'pdf'};
 
+  /* Server-available formats (LibreOffice-powered) */
+  var SERVER_FORMATS = ['DOCX','PDF','TXT','HTML','PPTX','XLSX','RTF','ODT','ODS','ODP'];
+
   function targetsFor(cat, ext) {
     if (cat === 'image') { var n = ext === 'jpeg' ? 'jpg' : ext; return ['PNG','JPG','WEBP','BMP','GIF'].filter(function(f){return f.toLowerCase() !== n}); }
     if (cat === 'audio') return ['WAV'];
@@ -145,24 +148,82 @@
     isBatch = false; batchStatus.classList.add('hidden'); renderQ();
   });
 
+  /* Server API base URL — set to '' for client-side only, or your server URL */
+  var API_BASE = '';
+
+  /* Check if server API is available */
+  async function checkServer() {
+    try {
+      var r = await fetch(API_BASE + '/api/health', { signal: AbortSignal.timeout(3000) });
+      if (r.ok) { var d = await r.json(); return d.status === 'ok'; }
+    } catch(e) {}
+    return false;
+  }
+
+  /* Server-side conversion via LibreOffice (DOCX, PDF, RTF, etc.) */
+  async function serverConvert(file, targetFormat) {
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('targetFormat', targetFormat);
+    onP(30, 'Sending to LibreOffice…');
+    var r = await fetch(API_BASE + '/api/convert', { method: 'POST', body: formData });
+    if (!r.ok) {
+      var err; try { err = await r.json(); } catch(e) { err = {}; }
+      throw new Error(err.error || 'Server conversion failed (status ' + r.status + ')');
+    }
+    var blob = await r.blob();
+    var name = r.headers.get('X-Original-Name') || file.name;
+    var base = name.replace(/\.[^/.]+$/, '');
+    var ext = targetFormat.toLowerCase();
+    return { blob: blob, name: base + '.' + ext };
+  }
+
   async function runItem(it) {
     it.status='processing'; it.pct=5; it.lbl='Starting…'; renderQ();
     function onP(p,l){it.pct=p;it.lbl=l;renderQ()}
     try {
       var out;
-      if (it.cat==='image') out = await convImage(it.file, it.target, it.quality/100, onP);
-      else if (it.cat==='audio') out = await convAudioWav(it.file, onP);
-      else if (it.cat==='csv') out = await convCsvOut(it.file, it.target, onP);
-      else if (it.cat==='tsv') out = await convTsv(it.file, it.target, onP);
-      else if (it.cat==='json') out = await convJsonOut(it.file, it.target, onP);
-      else if (it.cat==='xml') out = await convXml(it.file, it.target, onP);
-      else if (it.cat==='txt') out = await convTxtOut(it.file, it.target, onP);
-      else if (it.cat==='md') out = await convMd(it.file, it.target, onP);
-      else if (it.cat==='html') out = await convHtml(it.file, it.target, onP);
-      else if (it.cat==='rtf') out = await convRtf(it.file, it.target, onP);
-      else if (it.cat==='docx') out = await convDocx(it.file, it.target, onP);
-      else if (it.cat==='pdf') out = await convPdf(it.file, it.target, onP);
-      else throw new Error('Unsupported file type.');
+
+      /* ===== Document conversions: try server first (LibreOffice = perfect fidelity) ===== */
+      var serverTypes = ['docx','doc','pdf','rtf'];
+      var serverTargets = ['PDF','DOCX','TXT','HTML','PPTX','XLSX','RTF','ODT','ODS'];
+      var useServer = serverTypes.indexOf(it.cat) !== -1 && serverTargets.indexOf(it.target) !== -1;
+
+      if (useServer && API_BASE) {
+        /* Server available — route through LibreOffice for perfect content preservation */
+        try {
+          onP(10, 'Checking server…');
+          var serverUp = await checkServer();
+          if (serverUp) {
+            onP(20, 'Converting with LibreOffice (preserving all content)…');
+            out = await serverConvert(it.file, it.target);
+          } else {
+            /* Server down — fall through to client-side */
+            useServer = false;
+          }
+        } catch(e) {
+          /* Server error — fall through to client-side */
+          useServer = false;
+        }
+      }
+
+      /* ===== Client-side fallback / non-document conversions ===== */
+      if (!out) {
+        if (it.cat==='image') out = await convImage(it.file, it.target, it.quality/100, onP);
+        else if (it.cat==='audio') out = await convAudioWav(it.file, onP);
+        else if (it.cat==='csv') out = await convCsvOut(it.file, it.target, onP);
+        else if (it.cat==='tsv') out = await convTsv(it.file, it.target, onP);
+        else if (it.cat==='json') out = await convJsonOut(it.file, it.target, onP);
+        else if (it.cat==='xml') out = await convXml(it.file, it.target, onP);
+        else if (it.cat==='txt') out = await convTxtOut(it.file, it.target, onP);
+        else if (it.cat==='md') out = await convMd(it.file, it.target, onP);
+        else if (it.cat==='html') out = await convHtml(it.file, it.target, onP);
+        else if (it.cat==='rtf') out = await convRtf(it.file, it.target, onP);
+        else if (it.cat==='docx') out = await convDocx(it.file, it.target, onP);
+        else if (it.cat==='pdf') out = await convPdf(it.file, it.target, onP);
+        else throw new Error('Unsupported file type.');
+      }
+
       it.status='done'; it.rBlob=out.blob; it.rUrl=URL.createObjectURL(out.blob); it.rName=out.name;
     } catch(err) { err=fTaint(err); it.status='error'; it.err=(err&&err.message)?err.message:'Conversion failed.'; }
     renderQ();

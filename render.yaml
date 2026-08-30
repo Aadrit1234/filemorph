@@ -1,0 +1,12 @@
+# Render.com — Free tier deployment (750 hours/month)
+# Auto-detects Dockerfile and deploys both frontend + LibreOffice API
+services:
+  - type: web
+    name: filemorph
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /api/health
