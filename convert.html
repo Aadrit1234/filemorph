@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert — FileMorph</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand"><span class="nav-brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.5-7.13"/><path d="M21 3v6h-6"/></svg></span>FileMorph</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="convert.html" class="nav-link active">Convert</a>
+      <a href="transcribe.html" class="nav-link">Transcribe</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="page-hero">
+      <h1>⚡ Convert Files</h1>
+      <p>Drop any file and choose your output format. 38 conversion pairs available.</p>
+    </div>
+
+    <!-- Upload -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5v1.5a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1.5"/><path d="M7 9l5-5 5 5"/><path d="M12 4v13"/></svg></span> Drop &amp; Morph</div>
+        <span class="badge accent">STEP 01</span>
+      </div>
+      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload files">
+        <input type="file" id="fileInput" hidden multiple>
+        <div class="dz-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5v1.5a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1.5"/><path d="M7 9l5-5 5 5"/><path d="M12 4v13"/></svg></div>
+        <p class="dz-title">Drop files here</p>
+        <p class="dz-sub" id="dzSub">or click to browse — nothing leaves your device</p>
+        <div class="dz-tags">
+          <span class="dz-tag">PNG</span><span class="dz-tag">JPG</span><span class="dz-tag">WEBP</span><span class="dz-tag">SVG</span><span class="dz-tag">GIF</span><span class="dz-tag">BMP</span>
+          <span class="dz-tag">MP3</span><span class="dz-tag">WAV</span><span class="dz-tag">FLAC</span>
+          <span class="dz-tag">PDF</span><span class="dz-tag">DOCX</span><span class="dz-tag">HTML</span>
+          <span class="dz-tag">CSV</span><span class="dz-tag">TSV</span><span class="dz-tag">JSON</span><span class="dz-tag">XML</span>
+          <span class="dz-tag">TXT</span><span class="dz-tag">MD</span><span class="dz-tag">RTF</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Queue -->
+    <div class="card" id="queueCard" style="display:none">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></span> Queue</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button id="morphAllBtn" class="btn btn-primary" disabled type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M21 12a9 9 0 1 1-3.5-7.13"/><path d="M21 3v6h-6"/></svg>Morph All</button>
+          <div id="batchStatus" class="hidden" style="display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--text-soft)"><div style="width:16px;height:16px;background:linear-gradient(135deg,var(--accent),var(--teal));border-radius:50%;animation:procDot 2s ease-in-out infinite"></div><span id="batchText"></span></div>
+          <button id="clearBtn" class="btn btn-ghost hidden" type="button" style="color:var(--coral);font-size:.8rem">Clear</button>
+        </div>
+      </div>
+      <div id="queueList" class="q-list"></div>
+    </div>
+
+  </div>
+
+  <footer class="footer"><p>Everything happens locally in your browser.</p></footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.11.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/convert.js"></script>
+
+</body>
+</html>
