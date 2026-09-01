@@ -25,6 +25,15 @@
         if (window.lucide) lucide.createIcons();
       });
     });
+
+    // Close nav when tapping outside
+    document.addEventListener('click', (e) => {
+      if (navLinks.classList.contains('open') && !navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+        navLinks.classList.remove('open');
+        navToggle.innerHTML = '<i data-lucide="menu"></i>';
+        if (window.lucide) lucide.createIcons();
+      }
+    });
   }
 
   // ─── Theme Toggle ───
@@ -75,11 +84,21 @@
         }
       });
     }, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
+      threshold: 0.05,
+      rootMargin: '0px 0px -30px 0px'
     });
 
     revealElements.forEach(el => revealObserver.observe(el));
+
+    // Force reveal elements already in viewport on load
+    setTimeout(() => {
+      revealElements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight + 50) {
+          el.classList.add('visible');
+        }
+      });
+    }, 100);
   }
 
   // ─── 3D Tilt Effect on Cards ───
@@ -160,22 +179,25 @@
     }, duration);
   };
 
-  // ─── Smooth parallax on blobs ───
-  let ticking = false;
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      requestAnimationFrame(() => {
-        const scrollY = window.scrollY;
-        const orbs = document.querySelectorAll('.orb');
-        orbs.forEach((orb, i) => {
-          const speed = 0.03 + (i * 0.015);
-          orb.style.transform = `translateY(${scrollY * speed}px)`;
+  // ─── Smooth parallax on blobs (skip on mobile for performance) ───
+  const isMobile = window.matchMedia('(max-width: 768px)').matches || 'ontouchstart' in window;
+  if (!isMobile) {
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const orbs = document.querySelectorAll('.orb');
+          orbs.forEach((orb, i) => {
+            const speed = 0.03 + (i * 0.015);
+            orb.style.transform = `translateY(${scrollY * speed}px)`;
+          });
+          ticking = false;
         });
-        ticking = false;
-      });
-      ticking = true;
-    }
-  }, { passive: true });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
 
   // ─── Dynamic year in footer ───
   const yearSpans = document.querySelectorAll('.current-year');
