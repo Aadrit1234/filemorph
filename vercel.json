@@ -16,7 +16,7 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "https://filemorph-api.onrender.com/api/$1" },
+    { "src": "/api/(.*)", "dest": "https://filemorph.onrender.com/api/$1" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }
