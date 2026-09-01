@@ -1,68 +1,186 @@
-/* ===== THEME ===== */
-(function() {
-  var btn = document.getElementById('themeToggle');
-  var icon = document.getElementById('themeIcon');
-  if (!btn || !icon) return;
-  function apply(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    icon.innerHTML = t === 'dark'
-      ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>'
-      : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+/* ═══════════════════════════════════════════════════════════
+   FILEMORPH — Main JavaScript
+   Navigation, scroll animations, 3D tilt effects, toasts
+   ═══════════════════════════════════════════════════════════ */
+
+(function () {
+  'use strict';
+
+  // ─── Mobile Nav Toggle ───
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      navToggle.innerHTML = navLinks.classList.contains('open') ? '<i data-lucide="x"></i>' : '<i data-lucide="menu"></i>';
+      if (window.lucide) lucide.createIcons();
+    });
+
+    // Close nav on link click
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        navToggle.innerHTML = '<i data-lucide="menu"></i>';
+        if (window.lucide) lucide.createIcons();
+      });
+    });
   }
-  apply(localStorage.getItem('fm-theme') || 'light');
-  btn.addEventListener('click', function() {
-    var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    apply(t); localStorage.setItem('fm-theme', t);
+
+  // ─── Theme Toggle ───
+  const themeToggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+
+  function setTheme(theme) {
+    if (theme === 'light') {
+      root.setAttribute('data-theme', 'light');
+      if (themeToggle) themeToggle.innerHTML = '<i data-lucide="sun"></i>';
+    } else {
+      root.removeAttribute('data-theme');
+      if (themeToggle) themeToggle.innerHTML = '<i data-lucide="moon"></i>';
+    }
+    localStorage.setItem('theme', theme);
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // Apply saved theme on load
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  setTheme(savedTheme);
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme');
+      setTheme(current === 'light' ? 'dark' : 'light');
+    });
+  }
+
+  // ─── Scroll Progress Bar ───
+  const scrollProgress = document.getElementById('scrollProgress');
+  if (scrollProgress) {
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      scrollProgress.style.width = progress + '%';
+    }, { passive: true });
+  }
+
+  // ─── Scroll Reveal Animations ───
+  const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger-children');
+  if (revealElements.length > 0) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+  }
+
+  // ─── 3D Tilt Effect on Cards ───
+  const tiltCards = document.querySelectorAll('.tilt-card');
+  tiltCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -8;
+      const rotateY = ((x - centerX) / centerX) * 8;
+
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+    });
   });
-})();
 
-/* ===== SCROLL REVEAL ===== */
-(function() {
-  var obs = new IntersectionObserver(function(entries) {
-    entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
-  document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
-})();
-
-/* ===== COUNTER ANIMATION ===== */
-(function() {
-  setTimeout(function() {
-    document.querySelectorAll('.counter').forEach(function(el) {
-      var target = parseInt(el.getAttribute('data-target'), 10);
-      if (!target) return;
-      var dur = 1200, start = null;
-      function step(ts) {
-        if (!start) start = ts;
-        var p = Math.min((ts - start) / dur, 1);
-        el.textContent = Math.floor(p * target);
-        if (p < 1) requestAnimationFrame(step); else el.textContent = target;
+  // ─── Navbar background on scroll ───
+  const navbar = document.getElementById('navbar');
+  if (navbar) {
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.scrollY;
+      if (currentScroll > 100) {
+        navbar.style.background = 'rgba(240, 235, 230, 0.95)';
+      } else {
+        navbar.style.background = 'rgba(240, 235, 230, 0.85)';
       }
-      requestAnimationFrame(step);
-    });
-  }, 300);
-})();
+      lastScroll = currentScroll;
+    }, { passive: true });
+  }
 
-/* ===== CAROUSEL ===== */
-(function() {
-  var track = document.querySelector('.carousel-track');
-  var toggle = document.getElementById('ccToggle');
-  if (!track) return;
-  var paused = false;
-  if (toggle) {
-    toggle.addEventListener('click', function() {
-      paused = !paused;
-      if (paused) { track.classList.remove('move'); toggle.textContent = '▶ Play'; toggle.classList.remove('on'); }
-      else { track.classList.add('move'); toggle.textContent = '⏸ Pause'; toggle.classList.add('on'); }
+  // ─── Page Transitions ───
+  const pageTransition = document.getElementById('pageTransition');
+  if (pageTransition) {
+    // Entry animation
+    setTimeout(() => {
+      pageTransition.style.transformOrigin = 'top';
+      pageTransition.style.transform = 'scaleY(0)';
+    }, 100);
+
+    // Exit animation on link click
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && href.endsWith('.html') && !href.startsWith('http')) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          pageTransition.style.transformOrigin = 'bottom';
+          pageTransition.classList.add('active');
+          setTimeout(() => {
+            window.location.href = href;
+          }, 400);
+        });
+      }
     });
   }
-})();
 
-/* ===== MOBILE NAV TOGGLE ===== */
-(function() {
-  var toggle = document.querySelector('.nav-mobile-toggle');
-  var links = document.querySelector('.nav-links');
-  if (!toggle || !links) return;
-  toggle.addEventListener('click', function() {
-    links.classList.toggle('nav-open');
+  // ─── Toast Notification System ───
+  window.showToast = function(message, type = 'info', duration = 3000) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${message}`;
+
+    // Force reflow then show
+    toast.offsetHeight;
+    toast.classList.add('show');
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, duration);
+  };
+
+  // ─── Smooth parallax on blobs ───
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        const orbs = document.querySelectorAll('.orb');
+        orbs.forEach((orb, i) => {
+          const speed = 0.03 + (i * 0.015);
+          orb.style.transform = `translateY(${scrollY * speed}px)`;
+        });
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // ─── Dynamic year in footer ───
+  const yearSpans = document.querySelectorAll('.current-year');
+  yearSpans.forEach(span => {
+    span.textContent = new Date().getFullYear();
   });
+
 })();

@@ -3,192 +3,197 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transcribe — FileMorph</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>">
+  <title>Audio Transcription — Filemorph</title>
+  <meta name="description" content="Transcribe audio to text in English and Hindi. Real-time microphone transcription or upload audio files.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;500;600&family=Noto+Sans+Telugu:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;500;600&family=Noto+Sans+Malayalam:wght@400;500;600&family=Noto+Sans+Gurmukhi:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=Noto+Sans+Myanmar:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <script>if(localStorage.getItem('theme')==='light')document.documentElement.setAttribute('data-theme','light')</script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
-  <nav class="navbar">
-    <a href="index.html" class="nav-brand"><span class="nav-brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.5-7.13"/><path d="M21 3v6h-6"/></svg></span>FileMorph</a>
-    <div class="nav-links">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="convert.html" class="nav-link">Convert</a>
-      <a href="transcribe.html" class="nav-link active">Transcribe</a>
-      <a href="about.html" class="nav-link">About</a>
-    </div>
-    <div class="nav-right">
-      <button class="theme-btn" id="themeToggle" aria-label="Toggle theme"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
-    </div>
+  <div class="page-bg"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="scroll-progress" id="scrollProgress"></div>
+  <div class="page-transition" id="pageTransition"></div>
+
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon"><i data-lucide="palette"></i></div>
+      <span>Filemorph</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><i data-lucide="menu"></i></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="convert.html">Convert</a></li>
+      <li><a href="transcribe.html" class="active">Transcribe</a></li>
+
+    </ul>
+    <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode"><i data-lucide="moon"></i></button>
   </nav>
 
-  <div class="container" style="max-width:680px">
-
-    <div class="page-hero">
-      <h1>🎙️ Audio Transcription</h1>
-      <p>Speak live into your microphone or upload an audio file. Supports 35+ languages with native script rendering.</p>
+  <div class="transcribe-container">
+    <div class="section-header reveal" style="margin-bottom: 20px;">
+      <h2><i data-lucide="mic"></i> Audio Transcriber</h2>
+      <p>Convert speech to text in English and Hindi. Use your microphone for real-time transcription or upload an audio file.</p>
     </div>
 
-    <!-- MODE TOGGLE -->
-    <div class="tr-mode-toggle">
-      <button class="tr-mode-btn active" id="trFileMode" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-        Upload File
+    <!-- Language Selector -->
+    <div class="language-selector reveal" id="languageSelector">
+      <button class="lang-btn active" data-lang="en-US" data-label="English">
+        <i data-lucide="globe"></i> English
       </button>
-      <button class="tr-mode-btn" id="trMicMode" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        Live Microphone
+      <button class="lang-btn" data-lang="hi-IN" data-label="Hindi">
+        <i data-lucide="globe"></i> Hindi
+      </button>
+      <button class="lang-btn" data-lang="en-IN" data-label="Hinglish">
+        <i data-lucide="globe"></i> Hinglish
+      </button>
+      <button class="lang-btn" data-lang="es-ES" data-label="Spanish">
+        <i data-lucide="globe"></i> Spanish
+      </button>
+      <button class="lang-btn" data-lang="fr-FR" data-label="French">
+        <i data-lucide="globe"></i> French
+      </button>
+      <button class="lang-btn" data-lang="de-DE" data-label="German">
+        <i data-lucide="globe"></i> German
+      </button>
+      <button class="lang-btn" data-lang="ja-JP" data-label="Japanese">
+        <i data-lucide="globe"></i> Japanese
+      </button>
+      <button class="lang-btn" data-lang="zh-CN" data-label="Chinese">
+        <i data-lucide="globe"></i> Chinese
       </button>
     </div>
 
-    <!-- MODE INFO -->
-    <div class="tr-mode-info" id="trModeInfo">
-      <span class="tr-mode-icon">🔊</span>
-      <div><strong>File Mode</strong> — Upload an audio file. It plays through your speakers while the microphone captures and transcribes the audio. Ensure your volume is up and ambient noise is low.</div>
-    </div>
-
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-header">
-        <div class="card-title"><span class="card-icon" style="background:rgba(255,92,138,0.08);color:var(--coral)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></span> Upload Audio</div>
-        <span class="badge accent">BETA</span>
-      </div>
-
-      <div class="tr-drop" id="trDrop" tabindex="0" role="button" aria-label="Upload audio">
-        <input type="file" id="trFileInput" hidden accept="audio/*">
-        <div class="tr-orb" id="trOrb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>
-        <p class="dz-title">Drop an audio file</p>
-        <p class="dz-sub">MP3, WAV, OGG, M4A, AAC, FLAC — transcribed live</p>
-      </div>
-
-      <div class="tr-player hidden" id="trPlayer">
-        <button class="tr-play" id="trPlayBtn" aria-label="Play">▶</button>
-        <div class="tr-wave"><canvas id="trWaveCanvas"></canvas></div>
-        <span class="tr-time" id="trTime">0:00</span>
-      </div>
-
-      <div class="tr-actions" id="trActions" style="display:none">
-        <select class="tr-lang" id="trLang">
-          <optgroup label="🇮🇳 Indian Languages">
-            <option value="hi-IN">🇮🇳 हिन्दी (Hindi)</option>
-            <option value="bn-IN">🇧🇩 বাংলা (Bengali)</option>
-            <option value="ta-IN">🇮🇳 தமிழ் (Tamil)</option>
-            <option value="te-IN">🇮🇳 తెలుగు (Telugu)</option>
-            <option value="mr-IN">🇮🇳 मराठी (Marathi)</option>
-            <option value="gu-IN">🇮🇳 ગુજરાતી (Gujarati)</option>
-            <option value="kn-IN">🇮🇳 ಕನ್ನಡ (Kannada)</option>
-            <option value="ml-IN">🇮🇳 മലയാളം (Malayalam)</option>
-            <option value="pa-IN">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
-            <option value="ur-IN">🇵🇰 اردو (Urdu)</option>
-            <option value="ne-NP">🇳🇵 नेपाली (Nepali)</option>
-            <option value="si-LK">🇱🇰 සිංහල (Sinhala)</option>
-          </optgroup>
-          <optgroup label="🌍 European Languages">
-            <option value="en-US">🇺🇸 English (US)</option>
-            <option value="en-GB">🇬🇧 English (UK)</option>
-            <option value="es-ES">🇪🇸 Español (Spanish)</option>
-            <option value="fr-FR">🇫🇷 Français (French)</option>
-            <option value="de-DE">🇩🇪 Deutsch (German)</option>
-            <option value="it-IT">🇮🇹 Italiano (Italian)</option>
-            <option value="pt-BR">🇧🇷 Português (Portuguese)</option>
-            <option value="nl-NL">🇳🇱 Nederlands (Dutch)</option>
-            <option value="pl-PL">🇵🇱 Polski (Polish)</option>
-            <option value="ru-RU">🇷🇺 Русский (Russian)</option>
-            <option value="uk-UA">🇺🇦 Українська (Ukrainian)</option>
-            <option value="sv-SE">🇸🇪 Svenska (Swedish)</option>
-            <option value="da-DK">🇩🇰 Dansk (Danish)</option>
-            <option value="fi-FI">🇫🇮 Suomi (Finnish)</option>
-            <option value="nb-NO">🇳🇴 Norsk (Norwegian)</option>
-            <option value="tr-TR">🇹🇷 Türkçe (Turkish)</option>
-            <option value="el-GR">🇬🇷 Ελληνικά (Greek)</option>
-            <option value="hu-HU">🇭🇺 Magyar (Hungarian)</option>
-            <option value="cs-CZ">🇨🇿 Čeština (Czech)</option>
-            <option value="ro-RO">🇷🇴 Română (Romanian)</option>
-            <option value="hr-HR">🇭🇷 Hrvatski (Croatian)</option>
-            <option value="sk-SK">🇸🇰 Slovenčina (Slovak)</option>
-            <option value="bg-BG">🇧🇬 Български (Bulgarian)</option>
-          </optgroup>
-          <optgroup label="🌏 Asian Languages">
-            <option value="ja-JP">🇯🇵 日本語 (Japanese)</option>
-            <option value="ko-KR">🇰🇷 한국어 (Korean)</option>
-            <option value="zh-CN">🇨🇳 中文 (Chinese Simplified)</option>
-            <option value="zh-TW">🇹🇼 中文 (Chinese Traditional)</option>
-            <option value="th-TH">🇹🇭 ไทย (Thai)</option>
-            <option value="vi-VN">🇻🇳 Tiếng Việt (Vietnamese)</option>
-            <option value="id-ID">🇮🇩 Bahasa Indonesia</option>
-            <option value="ms-MY">🇲🇾 Bahasa Melayu</option>
-            <option value="fil-PH">🇵🇭 Filipino (Tagalog)</option>
-            <option value="my-MM">🇲🇲 မြန်မာ (Burmese)</option>
-          </optgroup>
-          <optgroup label="🌍 Middle Eastern / African">
-            <option value="ar-SA">🇸🇦 العربية (Arabic)</option>
-            <option value="fa-IR">🇮🇷 فارسی (Persian/Farsi)</option>
-            <option value="he-IL">🇮🇱 עברית (Hebrew)</option>
-            <option value="sw-KE">🇰🇪 Kiswahili (Swahili)</option>
-            <option value="ha-NG">🇳🇬 Hausa</option>
-            <option value="am-ET">🇪🇹 አማርኛ (Amharic)</option>
-          </optgroup>
-        </select>
-        <button class="tr-btn go" id="trStartBtn" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
-          Start Transcribing
+    <!-- Mode Switcher -->
+    <div class="mode-switcher reveal" id="modeSwitcher">
+      <div class="mode-switcher-track">
+        <button class="mode-option active" data-mode="mic" id="modeMicBtn">
+          <i data-lucide="mic"></i> Live Mic
         </button>
-        <button class="tr-btn sec" id="trCopyBtn" type="button" style="display:none">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy Text
+        <button class="mode-option" data-mode="file" id="modeFileBtn">
+          <i data-lucide="folder-open"></i> Audio File
         </button>
-      </div>
-
-      <div class="tr-meta" id="trMeta" style="display:none">
-        <div class="tr-meta-left"><span class="tr-dot" id="trDot"></span><span id="trStatus">Ready</span></div>
-        <span class="tr-copy" id="trWords"></span>
-      </div>
-
-      <div class="tr-output" id="trOutput"><span class="ph">Transcription will appear here…</span></div>
-
-    </div>
-
-    <!-- TIPS -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-header">
-        <div class="card-title"><span class="card-icon" style="background:rgba(0,191,165,0.08);color:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span> Tips for Best Results</div>
-      </div>
-      <div class="tips-grid">
-        <div class="tip-item">
-          <span class="tip-icon">🎯</span>
-          <div><strong>Clear Speech</strong> — Speak clearly and at a normal pace. Avoid mumbling.</div>
-        </div>
-        <div class="tip-item">
-          <span class="tip-icon">🔇</span>
-          <div><strong>Quiet Environment</strong> — Minimize background noise for better accuracy.</div>
-        </div>
-        <div class="tip-item">
-          <span class="tip-icon">🌐</span>
-          <div><strong>Internet Required</strong> — Web Speech API needs an internet connection for the speech model.</div>
-        </div>
-        <div class="tip-item">
-          <span class="tip-icon">🇮🇳</span>
-          <div><strong>Hindi Tips</strong> — Use standard Khadi Boli Hindi. Works best in Chrome/Edge. Also supports Marathi, Nepali, and other Devanagari languages.</div>
-        </div>
-        <div class="tip-item">
-          <span class="tip-icon">🎤</span>
-          <div><strong>Microphone</strong> — Use a good quality mic. Headset mics give better results than built-in laptop mics.</div>
-        </div>
-        <div class="tip-item">
-          <span class="tip-icon">⏱️</span>
-          <div><strong>Long Audio</strong> — For long files, the transcription auto-restarts. Just let it run — results appear in real-time.</div>
-        </div>
+        <div class="mode-slider" id="modeSlider"></div>
       </div>
     </div>
 
+    <!-- MODE: Live Mic Panel -->
+    <div class="mode-panel active" id="panelMic">
+      <div class="reveal-scale" style="text-align: center;">
+        <button class="mic-button" id="micButton" title="Click to start/stop recording">
+          <i data-lucide="mic"></i>
+        </button>
+        <p id="micStatus" style="margin-top: 12px; font-weight: 700; color: var(--text-secondary);">
+          Click the microphone to start
+        </p>
+      </div>
+    </div>
+
+    <!-- MODE: Audio File Panel -->
+    <div class="mode-panel" id="panelFile">
+      <div class="audio-drop-zone" id="audioDropZone">
+        <p style="margin-bottom: 8px;"><i data-lucide="music" style="width:40px;height:40px;"></i></p>
+        <p style="font-weight: 700; font-size: 1.1rem;">Drag &amp; drop audio file here</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">MP3, WAV, OGG, M4A, WebM, MP4</p>
+        <input type="file" class="file-input-hidden" id="audioFileInput" accept="audio/*,video/mp4,video/webm">
+      </div>
+      <div class="audio-player" id="audioPlayer">
+        <div class="clay-card" style="padding: 20px; text-align: left;">
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+            <div class="file-icon"><i data-lucide="music"></i></div>
+            <div>
+              <div class="file-name" id="audioFileName">audio.mp3</div>
+              <div class="file-size" id="audioFileSize">0 MB</div>
+            </div>
+          </div>
+          <audio controls id="audioElement" style="width: 100%; border-radius: 12px;">
+            Your browser does not support the audio element.
+          </audio>
+          <div style="margin-top: 16px; text-align: center;">
+            <button class="btn btn-primary" id="transcribeAudioBtn" style="width: 100%;">
+              <i data-lucide="mic"></i> Transcribe This Audio
+            </button>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
+              Audio will be played back and transcribed in real-time
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transcript Output -->
+    <div class="transcript-output reveal" id="transcriptOutput">
+      <div class="transcript-text" id="transcriptText" contenteditable="true" spellcheck="true"></div>
+    </div>
+
+    <!-- Transcript Controls -->
+    <div class="transcript-controls reveal" id="transcriptControls">
+      <button class="btn btn-secondary" id="copyTranscript" title="Copy transcript">
+        <i data-lucide="clipboard"></i> Copy
+      </button>
+      <button class="btn btn-secondary" id="downloadTranscript" title="Download as .txt">
+        <i data-lucide="download"></i> Download .txt
+      </button>
+      <button class="btn btn-secondary" id="clearTranscript" title="Clear transcript">
+        <i data-lucide="trash-2"></i> Clear
+      </button>
+    </div>
+
+    <!-- Info -->
+    <div class="section reveal" style="padding: 60px 0 0;">
+      <div class="clay-card" style="padding: 32px;">
+        <h3 style="font-weight: 800; margin-bottom: 16px;"><i data-lucide="lightbulb"></i> How Transcription Works</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+          <div>
+            <h4 style="font-weight: 800; margin-bottom: 8px;"><i data-lucide="mic"></i> Live Transcription</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Click the microphone button and start speaking. Your speech is converted to text in real-time. Works best in Chrome browser.
+            </p>
+          </div>
+          <div>
+            <h4 style="font-weight: 800; margin-bottom: 8px;"><i data-lucide="music"></i> File Transcription</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Upload an audio file, then click "Transcribe This Audio". The file is played back and captured by the speech recognizer.
+            </p>
+          </div>
+          <div>
+            <h4 style="font-weight: 800; margin-bottom: 8px;"><i data-lucide="globe"></i> Multi-Language</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+              Supports English, Hindi, Spanish, French, German, Japanese, Chinese, and more. Select your language before recording.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <footer class="footer"><p>Everything happens locally in your browser.</p></footer>
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4><i data-lucide="palette"></i> Filemorph</h4>
+        <p style="color: rgba(250,247,244,0.6); font-size: 0.9rem;">Convert files and transcribe audio with 100% content preservation. Free, fast, and private.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Tools</h4>
+        <a href="convert.html">File Converter</a>
+        <a href="transcribe.html">Audio Transcriber</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Filemorph. Transcription happens entirely in your browser — audio never leaves your device.</p>
+    </div>
+  </footer>
 
-  <script src="js/main.js"></script>
+  <div class="toast" id="toast"></div>
+
   <script src="js/transcribe.js"></script>
-
+  <script src="js/main.js"></script>
+  <script>lucide.createIcons();</script>
 </body>
 </html>

@@ -1,7 +1,10 @@
 node_modules
-.git
-.freebuff
+uploads
+output
 test
-*.md
+.git
+.gitignore
 .DS_Store
-Thumbs.db
+*.log
+.freebuff
+__pycache__

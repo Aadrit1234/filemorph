@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "name": "filemorph",
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "css/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "js/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "https://filemorph-api.onrender.com/api/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}

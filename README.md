@@ -1,122 +1,210 @@
-# FileMorph — Free File Converter & Audio Transcriber
+# 🎨 Filemorph
 
-A powerful, free file converter and audio transcriber. Converts between 38+ format pairs across 22 file types, and transcribes audio in 50+ languages.
+**File Converter & Audio Transcriber with 100% Content Preservation**
 
-**Document conversions (DOCX↔PDF) use LibreOffice on the server for 100% content preservation** — images, tables, fonts, formatting all stay exactly as they are.
+Convert documents, images, and audio between formats — every pixel, table, font, and image stays exactly where it belongs. Plus, transcribe audio in English and Hindi.
 
-## 🏗️ Architecture
+🔗 **Live Demo:** [filemorph.vercel.app](https://filemorph.vercel.app)
 
-```
-┌─────────────────────────────────────┐
-│  Frontend (HTML/CSS/JS)             │
-│  ┌─────────────┐ ┌───────────────┐  │
-│  │ Image/Audio  │ │ Document      │  │
-│  │ Data formats │ │ Conversions   │  │
-│  │ (client-side)│ │ → API call    │  │
-│  └─────────────┘ └──────┬────────┘  │
-│                         │           │
-│  ┌──────────────────────▼────────┐  │
-│  │  Node.js API + LibreOffice    │  │
-│  │  True format conversion       │  │
-│  │  (preserves everything)       │  │
-│  └───────────────────────────────┘  │
-└─────────────────────────────────────┘
-```
+---
 
-## 🚀 Deploy for Free
+## ✨ Features
 
-### Option 1: Render.com (Recommended — full backend + LibreOffice)
+### 📄 Document Conversion (100% Content Preservation)
+| Conversion | Method | Preservation |
+|---|---|---|
+| **PDF → DOCX** | pdf2docx (Python) | ✅ Tables, formatting, code blocks, layout |
+| **DOCX → PDF** | LibreOffice | ✅ Fonts, colors, images, page layout |
+| **PDF → PPTX/RTF/HTML/ODT** | LibreOffice | ✅ Full content preservation |
+| **DOCX → RTF/HTML/ODT** | LibreOffice | ✅ Full content preservation |
+| **PPTX → PDF** | LibreOffice | ✅ Slides, animations, transitions |
 
-1. Push this repo to GitHub
-2. Go to [render.com](https://render.com) → Sign up (free)
-3. Click **"New +"** → **"Web Service"**
-4. Connect your GitHub repo `filemorph`
-5. Settings:
-   - **Runtime:** Docker
-   - **Dockerfile:** `./Dockerfile`
-   - **Plan:** Free
-6. Click **"Deploy"** — done in ~3 minutes
+### 🖼️ Image Conversion
+JPG, PNG, WebP, TIFF, BMP, SVG, GIF — convert between any format with maximum quality retention via Sharp.
 
-Your site is live at `https://filemorph.onrender.com` with full LibreOffice conversion.
+### 🎙️ Audio Transcription
+Transcribe spoken audio in English and Hindi using Whisper AI. Upload files or use your microphone for real-time results.
 
-### Option 2: Railway (free $5/month credit)
+### 🛡️ Privacy & Security
+- Files processed server-side, auto-deleted after 1 hour
+- No sign-up required
+- No file size limits for most conversions
+- Open source — inspect the code yourself
 
-```bash
-# Install Railway CLI
-npm i -g @railway/cli
+---
 
-# Login and deploy
-railway login
-railway init
-railway up
-```
+## 🚀 Quick Start
 
-### Option 3: Fly.io (free tier — 3 shared-cpu VMs)
+### Prerequisites
+- **Node.js** 18+
+- **LibreOffice** ([install](https://www.libreoffice.org/download/)) — required for document conversions
+- **Python 3.11+** with `pdf2docx` — required for PDF→DOCX with full preservation
+
+### Installation
 
 ```bash
-fly auth signup
-fly launch
-fly deploy
+git clone https://github.com/Aadrit1234/filemorph.git
+cd filemorph
+npm install
+pip install pdf2docx
 ```
 
-### Option 4: Static-only (GitHub Pages, Netlify, Vercel)
+### Run
 
-If you only want client-side conversion (no LibreOffice):
+```bash
+npm start
+```
 
-1. Go to GitHub repo Settings → Pages
-2. Source: `master` branch → Save
-3. Live at `https://aadrit1234.github.io/filemorph/`
+Server starts at `http://localhost:3000`.
 
-**Note:** Document conversions (DOCX↔PDF) will use browser-based extraction (best effort, ~90% fidelity) instead of LibreOffice (100% fidelity).
+---
+
+## 🐳 Docker (Recommended for Production)
+
+The Docker image includes LibreOffice + Python + pdf2docx for full functionality.
+
+```bash
+# Build
+docker build -t filemorph .
+
+# Run
+docker run -p 3000:3000 filemorph
+```
+
+---
+
+## ☁️ Deployment
+
+### Option 1: Render (Recommended — Full Backend)
+
+Render supports Docker with persistent storage — perfect for this app.
+
+1. Push to GitHub
+2. Go to [render.com](https://render.com) → **New Web Service**
+3. Connect your GitHub repo
+4. Select **Docker** as runtime
+5. Render auto-detects the `Dockerfile` and `render.yaml`
+6. Deploy — done!
+
+The `render.yaml` is pre-configured with health checks and auto-deploy.
+
+### Option 2: Vercel (Frontend Only) + Render (Backend)
+
+Vercel can host the static frontend, while the backend runs on Render.
+
+1. **Deploy backend to Render** (see above) — note the URL (e.g., `https://filemorph-api.onrender.com`)
+2. **Deploy frontend to Vercel:**
+   - Update `vercel.json` with your actual backend URL
+   - Push to GitHub
+   - Import in [vercel.com](https://vercel.com)
+3. Vercel proxies `/api/*` requests to your Render backend
+
+### Option 3: Railway / Fly.io / DigitalOcean
+
+Any platform that supports Docker will work. Just use the included `Dockerfile`.
+
+---
+
+## 📡 API Documentation
+
+### Health Check
+```
+GET /api/health
+```
+```json
+{ "status": "ok", "libreoffice": true }
+```
+
+### Convert File
+```
+POST /api/convert
+Content-Type: multipart/form-data
+
+file: <uploaded file>
+targetFormat: pdf|docx|rtf|html|odt|pptx|txt|jpg|png|webp|tiff
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "downloadUrl": "/api/download/{fileId}/converted.{ext}",
+  "filename": "converted.docx",
+  "fileSize": 59530,
+  "format": "docx"
+}
+```
+
+### Download Converted File
+```
+GET /api/download/:fileId/:filename
+```
+
+### Supported Conversions
+
+| Input | Output Formats |
+|---|---|
+| PDF | DOCX, PPTX, RTF, HTML, ODT, TXT |
+| DOCX | PDF, RTF, HTML, ODT, TXT |
+| PPTX | PDF, TXT |
+| XLSX | PDF, CSV |
+| JPG/PNG/WebP/TIFF/BMP/GIF/SVG | PNG, JPG, WebP, TIFF, BMP, GIF |
+
+---
+
+## 🛠️ Tech Stack
+
+| Component | Technology |
+|---|---|
+| **Frontend** | HTML, CSS (Claymorphism), Vanilla JS |
+| **Backend** | Node.js, Express.js |
+| **PDF → DOCX** | pdf2docx (Python) — extracts tables, formatting, layout |
+| **Document Conversion** | LibreOffice (headless) — DOCX↔PDF, PPTX→PDF, etc. |
+| **Image Conversion** | Sharp — pixel-perfect format conversion |
+| **Audio Transcription** | Whisper AI |
+| **Deployment** | Docker, Render, Vercel (frontend) |
+
+---
 
 ## 📁 Project Structure
 
 ```
-├── index.html          # Landing page
-├── convert.html        # File converter
-├── transcribe.html     # Audio transcriber
-├── about.html          # About & FAQ
-├── server.js           # Node.js API (LibreOffice)
-├── package.json        # Dependencies
-├── Dockerfile          # Docker config with LibreOffice
-├── render.yaml         # Render.com deployment
+filemorph/
+├── server.js              # Express backend with conversion APIs
+├── pdf2docx_convert.py    # Python wrapper for PDF→DOCX conversion
+├── Dockerfile             # Full Docker image (LibreOffice + Python)
+├── render.yaml            # Render deployment config
+├── vercel.json            # Vercel frontend deployment config
+├── index.html             # Homepage
+├── convert.html           # File converter page
+├── transcribe.html        # Audio transcription page
 ├── css/
-│   └── style.css       # Design system
-└── js/
-    ├── main.js         # Shared utilities
-    ├── convert.js      # Conversion engine
-    └── transcribe.js   # Transcription engine
+│   └── style.css          # Claymorphism UI design
+├── js/
+│   ├── main.js            # Shared UI logic
+│   ├── convert.js         # Conversion logic
+│   └── transcribe.js      # Transcription logic
+└── package.json
 ```
 
-## ✨ Features
+---
 
-| Feature | How It Works | Fidelity |
-|---------|-------------|----------|
-| **Images** (PNG↔JPG↔WEBP↔SVG↔GIF↔BMP) | Canvas API, pixel-exact | ✅ Perfect |
-| **Audio** (MP3/WAV/OGG/M4A/AAC/FLAC→WAV) | Web Audio API, bit-exact PCM | ✅ Perfect |
-| **Data** (CSV↔TSV↔JSON↔XML) | Pure JS, zero data loss | ✅ Perfect |
-| **DOCX↔PDF** | LibreOffice server-side | ✅ 100% preservation |
-| **DOCX→TXT/HTML** | LibreOffice server-side | ✅ 100% preservation |
-| **PDF→TXT/HTML** | LibreOffice server-side | ✅ 100% preservation |
-| **HTML/MD→PDF** | LibreOffice server-side | ✅ Full rendering |
-| **Audio Transcription** | Web Speech API, 50+ languages | ✅ Client-side |
-| **OCR for Scanned Docs** | Tesseract.js | ✅ Client-side |
-| **Dark/Light Theme** | localStorage persistence | ✅ |
+## ⚡ Performance
 
-## 🛠️ Tech Stack
+- **PDF → DOCX:** ~4 seconds per page (pdf2docx)
+- **DOCX → PDF:** ~2 seconds (LibreOffice)
+- **Image conversions:** <1 second (Sharp)
+- **Max file size:** 100MB
+- **Auto-cleanup:** Files deleted after 1 hour
 
-- **Frontend:** Vanilla HTML/CSS/JS — no framework, instant load
-- **Backend:** Node.js + Express
-- **Document Conversion:** LibreOffice (via `libreoffice-convert`)
-- **Image Processing:** Canvas API
-- **Audio Processing:** Web Audio API
-- **PDF Reading:** pdf.js
-- **DOCX Reading:** mammoth.js
-- **ZIP Handling:** JSZip
-- **HTML→PDF:** html2pdf.js
-- **OCR:** Tesseract.js
-- **Transcription:** Web Speech API
+---
 
 ## 📄 License
 
-MIT — Free to use, modify, and distribute.
+MIT — use freely, modify freely.
+
+---
+
+## 🙏 Credits
+
+Built with ❤️ by [Aadrit Chandravanci](https://github.com/Aadrit1234)

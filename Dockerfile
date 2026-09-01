@@ -1,31 +1,27 @@
-# FileMorph — LibreOffice-powered file converter
-# This Docker image runs both the static frontend AND the conversion API
 FROM node:20-slim
 
-# Install LibreOffice and dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libreoffice-core \
+# Install LibreOffice + Python for document conversion
+RUN apt-get update && apt-get install -y \
+    libreoffice \
     libreoffice-writer \
     libreoffice-calc \
     libreoffice-impress \
-    libreoffice-draw \
+    libreoffice-pdfimport \
     fonts-liberation \
     fonts-dejavu-core \
-    fonts-noto-core \
+    python3 \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
+# Install pdf2docx Python package
+RUN pip3 install pdf2docx --break-system-packages
+
 WORKDIR /app
-
-# Install Node.js dependencies
-COPY package.json ./
+COPY package*.json ./
 RUN npm install --production
-
-# Copy all frontend files and server
 COPY . .
 
-# Create temp directory for uploads
-RUN mkdir -p /tmp/filemorph
+RUN mkdir -p uploads output
 
 EXPOSE 3000
-
 CMD ["node", "server.js"]

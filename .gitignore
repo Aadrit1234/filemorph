@@ -1,6 +1,10 @@
-.freebuff/
-test/
 node_modules/
-.DS_Store
-Thumbs.db
+uploads/
+output/
+test/
+.env
 *.log
+.DS_Store
+.freebuff/
+__pycache__/
+*.pyc
