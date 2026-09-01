@@ -1,20 +1,25 @@
-FROM node:20-slim
+FROM node:20-bookworm
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install LibreOffice + Python for document conversion
-RUN apt-get update && apt-get install -y \
-    libreoffice \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libreoffice-core \
     libreoffice-writer \
     libreoffice-calc \
     libreoffice-impress \
+    libreoffice-draw \
     libreoffice-pdfimport \
     fonts-liberation \
     fonts-dejavu-core \
     python3 \
     python3-pip \
+    python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pdf2docx Python package
-RUN pip3 install pdf2docx --break-system-packages
+RUN pip3 install pdf2docx --break-system-packages --no-cache-dir
 
 WORKDIR /app
 COPY package*.json ./
