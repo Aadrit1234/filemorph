@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """PDF to DOCX converter using pdf2docx for 100% content preservation.
-Post-processes to remove excessive blank space from empty paragraphs."""
+Post-processes to remove excessive blank space while preserving layout structure."""
 import sys
 import os
 
@@ -19,34 +19,58 @@ except ImportError:
 
 try:
     from docx import Document
-    from docx.shared import Cm, Pt
+    from docx.shared import Cm, Pt, Emu
 except ImportError:
     import subprocess
     subprocess.check_call([sys.executable, "-m", "pip", "install", "python-docx", "-q"])
     from docx import Document
-    from docx.shared import Cm, Pt
+    from docx.shared import Cm, Pt, Emu
 
 
 def fix_docx_spacing(docx_path):
-    """Remove excessive spacing from empty paragraphs that pdf2docx creates."""
+    """Aggressively fix spacing issues caused by pdf2docx layout reconstruction."""
     try:
         doc = Document(docx_path)
         fixed = 0
+        paras = doc.paragraphs
 
-        for para in doc.paragraphs:
-            if not para.text.strip():
-                pf = para.paragraph_format
-                # Remove excessive space_before on empty paragraphs
-                if pf.space_before and pf.space_before > Cm(0.5):
+        for i, para in enumerate(paras):
+            text = para.text.strip()
+            pf = para.paragraph_format
+
+            if not text:
+                # EMPTY paragraph — remove ALL spacing
+                if pf.space_before and pf.space_before > Cm(0.2):
                     pf.space_before = Cm(0)
                     fixed += 1
-                if pf.space_after and pf.space_after > Cm(0.5):
+                if pf.space_after and pf.space_after > Cm(0.2):
                     pf.space_after = Cm(0)
                     fixed += 1
-                # Remove spacing in paragraph style for empty paras
-                if para.style and para.style.paragraph_format:
-                    style_pf = para.style.paragraph_format
-                    # Don't modify the style itself, just the instance
+            else:
+                # NON-EMPTY paragraph — cap excessive spacing
+                if pf.space_before and pf.space_before > Cm(1.5):
+                    pf.space_before = Cm(1.0)
+                    fixed += 1
+                if pf.space_after and pf.space_after > Cm(1.5):
+                    pf.space_after = Cm(1.0)
+                    fixed += 1
+
+        # Remove consecutive empty paragraphs (keep max 1)
+        empty_run = 0
+        to_remove = []
+        for i, para in enumerate(paras):
+            if not para.text.strip():
+                empty_run += 1
+                if empty_run > 1:
+                    to_remove.append(para)
+            else:
+                empty_run = 0
+
+        # Remove excess empty paragraphs (from last to first to preserve indices)
+        for para in reversed(to_remove):
+            p = para._element
+            p.getparent().remove(p)
+            fixed += 1
 
         doc.save(docx_path)
         return fixed
@@ -61,10 +85,10 @@ def convert_pdf_to_docx(pdf_path, docx_path):
     cv.convert(docx_path)
     cv.close()
 
-    # Fix excessive blank space from empty paragraphs
+    # Fix excessive blank space from pdf2docx layout reconstruction
     fixed = fix_docx_spacing(docx_path)
     if fixed > 0:
-        print(f"  Fixed {fixed} empty paragraphs with excessive spacing", file=sys.stderr)
+        print(f"  Fixed {fixed} spacing issues", file=sys.stderr)
 
     return os.path.getsize(docx_path)
 
