@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Convert Files — Filemorph</title>
+  <title>File Converter — Filemorph</title>
   <meta name="description" content="Convert files between formats with 100% content preservation. PDF, DOCX, JPG, PNG, and more.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <script>if(localStorage.getItem('theme')==='light')document.documentElement.setAttribute('data-theme','light')</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
@@ -17,13 +17,11 @@
   <div class="page-bg"></div>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="scroll-progress" id="scrollProgress"></div>
-  <div class="page-transition" id="pageTransition"></div>
 
+  <!-- Navigation -->
   <nav class="navbar" id="navbar">
     <a href="index.html" class="nav-logo">
-      <div class="logo-icon"><i data-lucide="palette"></i></div>
+      <div class="logo-icon"><i data-lucide="zap"></i></div>
       <span>Filemorph</span>
     </a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu"><i data-lucide="menu"></i></button>
@@ -31,130 +29,117 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="convert.html" class="active">Convert</a></li>
       <li><a href="transcribe.html">Transcribe</a></li>
-
     </ul>
     <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode"><i data-lucide="moon"></i></button>
   </nav>
 
-  <div class="convert-container">
-    <div class="section-header reveal" style="margin-bottom: 40px;">
-      <h2><i data-lucide="arrow-right-left"></i> File Converter</h2>
-      <p>Upload your file, choose the target format, and download the converted result. 100% content preservation guaranteed.</p>
-    </div>
-
-    <!-- Drop Zone -->
-    <div class="drop-zone" id="dropZone">
-      <div class="drop-icon"><i data-lucide="upload-cloud"></i></div>
-      <h3>Drag &amp; Drop Your File Here</h3>
-      <p>or click to browse &bull; PDF, DOCX, JPG, PNG, WebP, MP3, and more</p>
-      <input type="file" class="file-input-hidden" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp,.svg,.txt,.rtf,.csv,.mp3,.wav,.ogg,.m4a,.flac">
-      <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
-        <i data-lucide="folder-open"></i> Choose File
-      </button>
-    </div>
-
-    <!-- File Preview -->
-    <div class="file-preview" id="filePreview">
-      <div class="file-preview-header">
-        <div class="file-info">
-          <div class="file-icon" id="previewIcon"><i data-lucide="file"></i></div>
-          <div>
-            <div class="file-name" id="previewName">filename.pdf</div>
-            <div class="file-size" id="previewSize">2.4 MB</div>
-          </div>
+  <!-- Main Convert Area -->
+  <main class="convert-main">
+    <!-- Step 1: Upload -->
+    <div class="convert-step" id="stepUpload">
+      <div class="upload-zone" id="dropZone">
+        <div class="upload-icon">
+          <i data-lucide="upload-cloud"></i>
         </div>
-        <button class="remove-file" id="removeFile" title="Remove file"><i data-lucide="x"></i></button>
+        <h2>Drop a file here</h2>
+        <p>or click to browse your files</p>
+        <div class="upload-formats">
+          <span>PDF</span><span>DOCX</span><span>PPTX</span><span>XLSX</span><span>JPG</span><span>PNG</span><span>WebP</span><span>MP3</span><span>WAV</span>
+        </div>
+        <input type="file" class="file-input-hidden" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif,.webp,.svg,.txt,.rtf,.csv,.mp3,.wav,.ogg,.m4a,.flac">
       </div>
     </div>
 
-    <!-- Format Selection -->
-    <div class="format-section" id="formatSection" style="display: none;">
-      <div class="section-header reveal" style="margin-bottom: 24px;">
-        <h2 style="font-size: 1.5rem;">Choose Output Format</h2>
-      </div>
-      <div class="format-tabs" id="formatTabs">
-        <button class="format-tab active" data-category="all">All</button>
-        <button class="format-tab" data-category="document"><i data-lucide="file-text"></i> Documents</button>
-        <button class="format-tab" data-category="image"><i data-lucide="image"></i> Images</button>
-        <button class="format-tab" data-category="audio"><i data-lucide="music"></i> Audio</button>
-      </div>
-      <div class="format-grid" id="formatGrid"></div>
-    </div>
-
-    <!-- Convert Button -->
-    <div class="convert-btn-wrapper" id="convertBtnWrapper" style="display: none;">
-      <button class="btn btn-primary convert-btn" id="convertBtn" disabled>
-        <i data-lucide="arrow-right-left"></i> Convert Now
-      </button>
-    </div>
-
-    <!-- Conversion Animation -->
-    <div class="conversion-anim" id="conversionAnim">
-      <div class="anim-stage">
-        <div class="anim-files">
-          <div class="anim-file source" id="animSource">
-            <div class="anim-file-icon" id="animSourceIcon"><i data-lucide="file"></i></div>
-            <div class="anim-file-label" id="animSourceLabel">PDF</div>
+    <!-- Step 2: File Info + Format Selection -->
+    <div class="convert-step hidden" id="stepSelect">
+      <div class="file-card" id="fileCard">
+        <div class="file-card-left">
+          <div class="file-type-icon" id="fileTypeIcon">
+            <i data-lucide="file"></i>
           </div>
-          <div class="anim-arrow" id="animArrow">
-            <div class="arrow-particles">
-              <div class="arrow-particle"></div>
-              <div class="arrow-particle"></div>
-              <div class="arrow-particle"></div>
-              <div class="arrow-particle"></div>
-              <div class="arrow-particle"></div>
+          <div class="file-details">
+            <div class="file-name" id="fileName">document.pdf</div>
+            <div class="file-meta">
+              <span class="file-size" id="fileSize">2.4 MB</span>
+              <span class="file-separator">•</span>
+              <span class="file-ext" id="fileExt">PDF</span>
             </div>
-            <i data-lucide="arrow-right"></i>
-          </div>
-          <div class="anim-file target" id="animTarget">
-            <div class="anim-file-icon" id="animTargetIcon"><i data-lucide="file"></i></div>
-            <div class="anim-file-label" id="animTargetLabel">DOCX</div>
           </div>
         </div>
-        <div class="anim-progress">
-          <div class="anim-progress-track">
-            <div class="anim-progress-fill" id="animProgressFill"></div>
+        <button class="file-remove" id="removeFile" title="Remove file">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="format-picker">
+        <h3>Convert to</h3>
+        <div class="format-categories" id="formatTabs">
+          <button class="cat-btn active" data-category="all">All</button>
+          <button class="cat-btn" data-category="document">Documents</button>
+          <button class="cat-btn" data-category="image">Images</button>
+          <button class="cat-btn" data-category="text">Text</button>
+        </div>
+        <div class="format-list" id="formatGrid"></div>
+      </div>
+
+      <!-- Convert Button -->
+      <div class="action-bar hidden" id="actionBar">
+        <button class="convert-btn" id="convertBtn" disabled>
+          <i data-lucide="arrow-right-left"></i>
+          <span>Convert File</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Converting -->
+    <div class="convert-step hidden" id="stepConverting">
+      <div class="converting-card">
+        <div class="converting-visual">
+          <div class="conv-file conv-source">
+            <div class="conv-file-icon" id="convSourceIcon"><i data-lucide="file"></i></div>
+            <span id="convSourceLabel">PDF</span>
           </div>
-          <div class="anim-status" id="animStatus">Uploading file...</div>
+          <div class="conv-arrow">
+            <div class="conv-arrow-line"></div>
+            <div class="conv-arrow-dot"></div>
+          </div>
+          <div class="conv-file conv-target">
+            <div class="conv-file-icon" id="convTargetIcon"><i data-lucide="file"></i></div>
+            <span id="convTargetLabel">DOCX</span>
+          </div>
+        </div>
+        <div class="conv-progress">
+          <div class="conv-progress-bar">
+            <div class="conv-progress-fill" id="convProgressFill"></div>
+          </div>
+          <div class="conv-status" id="convStatus">Uploading...</div>
         </div>
       </div>
     </div>
 
-    <!-- Result -->
-    <div class="conversion-result" id="conversionResult">
-      <div class="result-card">
-        <div class="result-icon"><i data-lucide="check-circle"></i></div>
-        <h3>Conversion Complete!</h3>
-        <p id="resultInfo">Your file has been converted successfully</p>
-        <div class="result-actions">
-          <a class="btn btn-primary" id="downloadBtn" href="#" download>
-            <i data-lucide="download"></i> Download File
+    <!-- Step 4: Done -->
+    <div class="convert-step hidden" id="stepDone">
+      <div class="done-card">
+        <div class="done-icon">
+          <i data-lucide="check-circle-2"></i>
+        </div>
+        <h2>Conversion complete</h2>
+        <p class="done-info" id="doneInfo">Your file is ready to download</p>
+        <div class="done-actions">
+          <a class="download-btn" id="downloadBtn" href="#" download>
+            <i data-lucide="download"></i>
+            <span>Download</span>
           </a>
-          <button class="btn btn-secondary" id="convertAnotherBtn">
-            <i data-lucide="refresh-cw"></i> Convert Another
+          <button class="another-btn" id="convertAnotherBtn">
+            <i data-lucide="plus"></i>
+            <span>Convert another</span>
           </button>
         </div>
       </div>
     </div>
-  </div>
+  </main>
 
-  <footer class="footer">
-    <div class="footer-grid">
-      <div class="footer-col">
-        <h4><i data-lucide="palette"></i> Filemorph</h4>
-        <p style="color: rgba(250,247,244,0.6); font-size: 0.9rem;">Convert files and transcribe audio with 100% content preservation. Free, fast, and private.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Tools</h4>
-        <a href="convert.html">File Converter</a>
-        <a href="transcribe.html">Audio Transcriber</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Filemorph. Your files are processed securely and auto-deleted after 1 hour.</p>
-    </div>
-  </footer>
-
+  <!-- Toast -->
   <div class="toast" id="toast"></div>
 
   <script src="js/convert.js"></script>

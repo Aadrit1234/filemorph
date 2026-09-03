@@ -102,16 +102,41 @@ app.get('/api/health', (req, res) => {
 
 // ─── Supported conversions (smart list) ───
 app.get('/api/conversions', (req, res) => {
-  const docConversions = libreAvailable ? {
-    'pdf-to-docx': { label: 'PDF → DOCX', icon: '📄' },
-    'docx-to-pdf': { label: 'DOCX → PDF', icon: '📝' },
-    'pdf-to-pptx': { label: 'PDF → PPTX', icon: '📊' },
-    'pptx-to-pdf': { label: 'PPTX → PDF', icon: '📊' },
-    'xls-to-pdf': { label: 'XLS → PDF', icon: '📈' },
-  } : {};
+  // pdf2docx availability for PDF→DOCX
+  let pdf2docxAvailable = false;
+  try {
+    const pyCheck = ['python3', 'python', '/usr/bin/python3', '/usr/local/bin/python3'];
+    for (const p of pyCheck) {
+      try {
+        execFileSync(p, ['-c', 'import pdf2docx'], { timeout: 5000, stdio: 'pipe' });
+        pdf2docxAvailable = true;
+        break;
+      } catch (e) {}
+    }
+  } catch (e) {}
+
+  const docConversions = {};
+  if (pdf2docxAvailable || libreAvailable) {
+    docConversions['pdf-to-docx'] = { label: 'PDF → DOCX', icon: '📄', method: pdf2docxAvailable ? 'pdf2docx' : 'libreoffice' };
+  }
+  if (libreAvailable) {
+    docConversions['docx-to-pdf'] = { label: 'DOCX → PDF', icon: '📝' };
+    docConversions['doc-to-docx'] = { label: 'DOC → DOCX', icon: '📄' };
+    docConversions['pdf-to-pptx'] = { label: 'PDF → PPTX', icon: '📊' };
+    docConversions['pptx-to-pdf'] = { label: 'PPTX → PDF', icon: '📊' };
+    docConversions['pdf-to-rtf'] = { label: 'PDF → RTF', icon: '📝' };
+    docConversions['pdf-to-html'] = { label: 'PDF → HTML', icon: '🌐' };
+    docConversions['pdf-to-odt'] = { label: 'PDF → ODT', icon: '📄' };
+    docConversions['docx-to-rtf'] = { label: 'DOCX → RTF', icon: '📝' };
+    docConversions['docx-to-html'] = { label: 'DOCX → HTML', icon: '🌐' };
+    docConversions['docx-to-odt'] = { label: 'DOCX → ODT', icon: '📄' };
+    docConversions['xls-to-pdf'] = { label: 'XLS → PDF', icon: '📈' };
+    docConversions['xlsx-to-pdf'] = { label: 'XLSX → PDF', icon: '📈' };
+  }
 
   res.json({
     libreoffice: libreAvailable,
+    pdf2docx: pdf2docxAvailable,
     document: docConversions,
     image: {
       'jpg-to-png': { label: 'JPG → PNG' },
@@ -155,7 +180,17 @@ app.post('/api/convert', upload.single('file'), async (req, res) => {
     }
     // ── PDF → DOCX (uses pdf2docx for 100% content preservation) ──
     else if (ext === '.pdf' && target === 'docx') {
-      result = await convertPdfToDocx(inputPath, fileId);
+      try {
+        result = await convertPdfToDocx(inputPath, fileId);
+      } catch (e) {
+        console.log('  pdf2docx failed, falling back to LibreOffice:', e.message);
+        if (!libreAvailable) throw e;
+        result = await convertWithLibreOffice(inputPath, 'docx', fileId);
+      }
+    }
+    // ── DOC → DOCX (upgrade legacy format) ──
+    else if (ext === '.doc' && target === 'docx') {
+      result = await convertWithLibreOffice(inputPath, 'docx', fileId);
     }
     // ── Document conversions (needs LibreOffice) ──
     else if (isDocumentConversion(ext, target)) {
@@ -379,12 +414,14 @@ async function convertPdfToDocx(inputPath, fileId) {
   const outputPath = path.join(outputDir, 'converted.docx');
   const scriptPath = path.join(__dirname, 'pdf2docx_convert.py');
 
-  // Find Python executable
+  // Find Python executable (cross-platform)
   const pythonPaths = [
+    'python3', 'python',
+    '/usr/bin/python3', '/usr/bin/python',
+    '/usr/local/bin/python3', '/usr/local/bin/python',
     'C:/Users/jeet1/AppData/Local/Programs/Python/Python313/python.exe',
     'C:/Users/jeet1/AppData/Local/Programs/Python/Python312/python.exe',
     'C:/Users/jeet1/AppData/Local/Programs/Python/Python311/python.exe',
-    'python3', 'python',
   ];
   let pythonExe = null;
   for (const p of pythonPaths) {

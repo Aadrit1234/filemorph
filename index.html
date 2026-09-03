@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Filemorph — File Converter & Audio Transcriber</title>
-  <meta name="description" content="Convert files between formats with 100% content preservation. Transcribe audio in English & Hindi. Glassmorphism UI.">
+  <title>Filemorph — Free Online File Converter</title>
+  <meta name="description" content="Convert files between formats with 100% content preservation. PDF, DOCX, JPG, PNG, and more. Free, fast, and private.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <script>if(localStorage.getItem('theme')==='light')document.documentElement.setAttribute('data-theme','light')</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
@@ -17,14 +17,11 @@
   <div class="page-bg"></div>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="scroll-progress" id="scrollProgress"></div>
-  <div class="page-transition" id="pageTransition"></div>
 
   <!-- Navigation -->
   <nav class="navbar" id="navbar">
     <a href="index.html" class="nav-logo">
-      <div class="logo-icon"><i data-lucide="palette"></i></div>
+      <div class="logo-icon"><i data-lucide="zap"></i></div>
       <span>Filemorph</span>
     </a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu"><i data-lucide="menu"></i></button>
@@ -32,7 +29,6 @@
       <li><a href="index.html" class="active">Home</a></li>
       <li><a href="convert.html">Convert</a></li>
       <li><a href="transcribe.html">Transcribe</a></li>
-
     </ul>
     <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode"><i data-lucide="moon"></i></button>
   </nav>
@@ -41,26 +37,26 @@
   <section class="hero">
     <div class="hero-badge">
       <span class="pulse-dot"></span>
-      Free &bull; No Sign-Up Required
+      Free &bull; No Sign-Up
     </div>
     <h1>
-      Convert Files with<br>
-      <span class="gradient-text">100% Content Preservation</span>
+      Convert any file<br>
+      <span class="gradient-text">with perfect quality</span>
     </h1>
     <p>
-      Transform documents, images, and audio between formats — every pixel, table, font, and image stays exactly where it belongs. Plus, transcribe audio in English and Hindi.
+      Documents, images, and more — every pixel, table, and font stays exactly where it belongs.
     </p>
     <div class="hero-cta">
       <a href="convert.html" class="btn btn-primary">
         <i data-lucide="arrow-right-left"></i> Start Converting
       </a>
       <a href="transcribe.html" class="btn btn-secondary">
-        <i data-lucide="mic"></i> Try Transcription
+        <i data-lucide="mic"></i> Transcribe Audio
       </a>
     </div>
   </section>
 
-  <!-- Marquee -->
+  <!-- Format Marquee -->
   <div class="marquee-wrapper reveal">
     <div class="marquee-track">
       <div class="marquee-item"><i data-lucide="file-text"></i> PDF</div>
@@ -72,9 +68,7 @@
       <div class="marquee-item"><i data-lucide="globe"></i> WebP</div>
       <div class="marquee-item"><i data-lucide="music"></i> MP3</div>
       <div class="marquee-item"><i data-lucide="music"></i> WAV</div>
-      <div class="marquee-item"><i data-lucide="music"></i> OGG</div>
       <div class="marquee-item"><i data-lucide="align-left"></i> TXT</div>
-      <div class="marquee-item"><i data-lucide="palette"></i> SVG</div>
       <div class="marquee-item"><i data-lucide="file-text"></i> PDF</div>
       <div class="marquee-item"><i data-lucide="file"></i> DOCX</div>
       <div class="marquee-item"><i data-lucide="presentation"></i> PPTX</div>
@@ -84,9 +78,7 @@
       <div class="marquee-item"><i data-lucide="globe"></i> WebP</div>
       <div class="marquee-item"><i data-lucide="music"></i> MP3</div>
       <div class="marquee-item"><i data-lucide="music"></i> WAV</div>
-      <div class="marquee-item"><i data-lucide="music"></i> OGG</div>
       <div class="marquee-item"><i data-lucide="align-left"></i> TXT</div>
-      <div class="marquee-item"><i data-lucide="palette"></i> SVG</div>
     </div>
   </div>
 
@@ -94,38 +86,38 @@
   <section class="section">
     <div class="section-header reveal">
       <h2>Why Filemorph?</h2>
-      <p>Built for precision. Designed for delight. Every conversion preserves your content perfectly.</p>
+      <p>Built for precision. Designed for speed.</p>
     </div>
-    <div class="feature-grid stagger-children" id="featureGrid">
-      <div class="feature-card tilt-card">
+    <div class="feature-grid stagger-children">
+      <div class="feature-card">
         <div class="feature-icon"><i data-lucide="target"></i></div>
-        <h3>100% Content Preservation</h3>
-        <p>Images, tables, fonts, colors, and layout stay exactly where they are. No reflow, no broken formatting.</p>
+        <h3>100% Preservation</h3>
+        <p>Images, tables, fonts, and layout stay exactly where they are. No reflow, no broken formatting.</p>
       </div>
-      <div class="feature-card tilt-card">
+      <div class="feature-card">
         <div class="feature-icon"><i data-lucide="file-text"></i></div>
-        <h3>Smart Document Conversion</h3>
-        <p>PDF ↔ DOCX, DOCX → PDF, PPTX → PDF, and more. PDFs convert to fully editable DOCX with tables, formatting, and code preserved.</p>
+        <h3>PDF → DOCX</h3>
+        <p>Convert PDFs to fully editable Word documents with tables, formatting, and code preserved.</p>
       </div>
-      <div class="feature-card tilt-card">
+      <div class="feature-card">
         <div class="feature-icon"><i data-lucide="image"></i></div>
-        <h3>Pixel-Perfect Image Conversion</h3>
-        <p>JPG, PNG, WebP, TIFF, BMP, SVG, GIF — convert between any format with maximum quality retention.</p>
+        <h3>Image Conversion</h3>
+        <p>JPG, PNG, WebP, TIFF, BMP, SVG — convert between any format with maximum quality.</p>
       </div>
-      <div class="feature-card tilt-card">
+      <div class="feature-card">
         <div class="feature-icon"><i data-lucide="mic"></i></div>
         <h3>Audio Transcription</h3>
-        <p>Transcribe spoken audio in English and Hindi. Upload files or use your microphone for real-time results.</p>
+        <p>Transcribe spoken audio in English and Hindi. Real-time microphone or file upload.</p>
       </div>
-      <div class="feature-card tilt-card">
+      <div class="feature-card">
         <div class="feature-icon"><i data-lucide="lock"></i></div>
-        <h3>Private &amp; Secure</h3>
-        <p>Files are processed on the server and automatically deleted after 1 hour. We never store or share your data.</p>
+        <h3>Private & Secure</h3>
+        <p>Files are processed server-side and automatically deleted after 1 hour. Never stored or shared.</p>
       </div>
-      <div class="feature-card tilt-card">
+      <div class="feature-card">
         <div class="feature-icon"><i data-lucide="zap"></i></div>
-        <h3>Fast &amp; Free</h3>
-        <p>No sign-up required. No file size limits for most conversions. Processed server-side for maximum speed.</p>
+        <h3>Fast & Free</h3>
+        <p>No sign-up required. Processed server-side for maximum speed. Zero cost.</p>
       </div>
     </div>
   </section>
@@ -134,94 +126,23 @@
   <section class="section" style="background: rgba(124,58,237,0.04); border-radius: 40px; max-width: 1300px;">
     <div class="section-header reveal">
       <h2>How It Works</h2>
-      <p>Three simple steps to convert any file</p>
+      <p>Three steps to convert any file</p>
     </div>
     <div class="steps-container stagger-children">
       <div class="step-card">
         <div class="step-number"><i data-lucide="upload-cloud"></i></div>
-        <h4>Upload Your File</h4>
-        <p>Drag &amp; drop or click to select. We support documents, images, and audio files.</p>
+        <h4>Upload</h4>
+        <p>Drag & drop or click to select your file.</p>
       </div>
       <div class="step-card">
         <div class="step-number"><i data-lucide="settings-2"></i></div>
-        <h4>Choose Output Format</h4>
-        <p>Select your desired format. Smart suggestions based on your file type.</p>
+        <h4>Choose Format</h4>
+        <p>Pick your output format from smart suggestions.</p>
       </div>
       <div class="step-card">
         <div class="step-number"><i data-lucide="download"></i></div>
-        <h4>Download Result</h4>
-        <p>Your converted file is ready in seconds. Perfectly preserved content, zero compromise.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Popular Conversions Marquee -->
-  <section class="section">
-    <div class="section-header reveal">
-      <h2>Popular Conversions</h2>
-      <p>The most-used transformations our users rely on daily</p>
-    </div>
-    <div class="marquee-wrapper reveal" style="animation-direction: reverse;">
-      <div class="marquee-track" style="animation-direction: reverse; animation-duration: 25s;">
-        <div class="marquee-item"><i data-lucide="file-text"></i> PDF <i data-lucide="arrow-right"></i> <i data-lucide="file"></i> DOCX</div>
-        <div class="marquee-item"><i data-lucide="file"></i> DOCX <i data-lucide="arrow-right"></i> <i data-lucide="file-text"></i> PDF</div>
-        <div class="marquee-item"><i data-lucide="image"></i> JPG <i data-lucide="arrow-right"></i> <i data-lucide="image"></i> PNG</div>
-        <div class="marquee-item"><i data-lucide="image"></i> PNG <i data-lucide="arrow-right"></i> <i data-lucide="globe"></i> WebP</div>
-        <div class="marquee-item"><i data-lucide="presentation"></i> PPTX <i data-lucide="arrow-right"></i> <i data-lucide="file-text"></i> PDF</div>
-        <div class="marquee-item"><i data-lucide="file-text"></i> PDF <i data-lucide="arrow-right"></i> <i data-lucide="align-left"></i> TXT</div>
-        <div class="marquee-item"><i data-lucide="music"></i> MP3 <i data-lucide="arrow-right"></i> <i data-lucide="music"></i> WAV</div>
-        <div class="marquee-item"><i data-lucide="mic"></i> Audio <i data-lucide="arrow-right"></i> <i data-lucide="align-left"></i> Text</div>
-        <div class="marquee-item"><i data-lucide="file-text"></i> PDF <i data-lucide="arrow-right"></i> <i data-lucide="file"></i> DOCX</div>
-        <div class="marquee-item"><i data-lucide="file"></i> DOCX <i data-lucide="arrow-right"></i> <i data-lucide="file-text"></i> PDF</div>
-        <div class="marquee-item"><i data-lucide="image"></i> JPG <i data-lucide="arrow-right"></i> <i data-lucide="image"></i> PNG</div>
-        <div class="marquee-item"><i data-lucide="image"></i> PNG <i data-lucide="arrow-right"></i> <i data-lucide="globe"></i> WebP</div>
-        <div class="marquee-item"><i data-lucide="presentation"></i> PPTX <i data-lucide="arrow-right"></i> <i data-lucide="file-text"></i> PDF</div>
-        <div class="marquee-item"><i data-lucide="file-text"></i> PDF <i data-lucide="arrow-right"></i> <i data-lucide="align-left"></i> TXT</div>
-        <div class="marquee-item"><i data-lucide="music"></i> MP3 <i data-lucide="arrow-right"></i> <i data-lucide="music"></i> WAV</div>
-        <div class="marquee-item"><i data-lucide="mic"></i> Audio <i data-lucide="arrow-right"></i> <i data-lucide="align-left"></i> Text</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="section">
-    <div class="section-header reveal">
-      <h2>Loved by Users</h2>
-      <p>See what people say about Filemorph</p>
-    </div>
-    <div class="testimonial-grid stagger-children">
-      <div class="testimonial-card">
-        <div class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
-        <p>"Converted a 50-page PDF with complex tables and images to DOCX. Everything stayed perfectly in place. Incredibly impressed."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">A</div>
-          <div>
-            <div class="testimonial-name">Ananya S.</div>
-            <div class="testimonial-role">Content Writer</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
-        <p>"The Hindi transcription works amazingly well! I uploaded a podcast episode and got accurate text in minutes. Game changer."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">R</div>
-          <div>
-            <div class="testimonial-name">Rahul K.</div>
-            <div class="testimonial-role">Podcast Producer</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
-        <p>"Beautiful glassmorphism design that actually works well. Converted scanned PDFs to editable DOCX with images preserved. Excellent!"</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">M</div>
-          <div>
-            <div class="testimonial-name">Maya T.</div>
-            <div class="testimonial-role">Designer</div>
-          </div>
-        </div>
+        <h4>Download</h4>
+        <p>Your converted file is ready in seconds.</p>
       </div>
     </div>
   </section>
@@ -230,10 +151,10 @@
   <section class="section reveal-scale">
     <div class="clay-card" style="text-align: center; padding: 60px 40px; max-width: 700px; margin: 0 auto;">
       <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 16px;">Ready to Convert?</h2>
-      <p style="color: var(--text-secondary); margin-bottom: 30px;">No sign-up. No watermarks. No limits. Just perfect conversions.</p>
+      <p style="color: var(--text-secondary); margin-bottom: 30px;">No sign-up. No watermarks. Just perfect conversions.</p>
       <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-        <a href="convert.html" class="btn btn-primary"><i data-lucide="arrow-right-left"></i> Start Converting Now</a>
-        <a href="transcribe.html" class="btn btn-secondary"><i data-lucide="mic"></i> Try Transcription</a>
+        <a href="convert.html" class="btn btn-primary"><i data-lucide="arrow-right-left"></i> Start Now</a>
+        <a href="transcribe.html" class="btn btn-secondary"><i data-lucide="mic"></i> Transcribe</a>
       </div>
     </div>
   </section>
@@ -242,8 +163,8 @@
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-col">
-        <h4><i data-lucide="palette"></i> Filemorph</h4>
-        <p style="color: rgba(250,247,244,0.6); font-size: 0.9rem;">Convert files and transcribe audio with 100% content preservation. Free, fast, and private.</p>
+        <h4><i data-lucide="zap"></i> Filemorph</h4>
+        <p style="color: rgba(250,247,244,0.6); font-size: 0.9rem;">Free online file converter with 100% content preservation.</p>
       </div>
       <div class="footer-col">
         <h4>Tools</h4>
@@ -251,15 +172,14 @@
         <a href="transcribe.html">Audio Transcriber</a>
       </div>
       <div class="footer-col">
-        <h4>Formats</h4>
-        <a href="convert.html">PDF ↔ DOCX</a>
-        <a href="convert.html">JPG ↔ PNG</a>
-        <a href="convert.html">PPTX → PDF</a>
+        <h4>Popular</h4>
+        <a href="convert.html">PDF → DOCX</a>
+        <a href="convert.html">DOCX → PDF</a>
+        <a href="convert.html">JPG → PNG</a>
       </div>
-
     </div>
     <div class="footer-bottom">
-      <p>© 2026 Filemorph. Built with care. All conversions happen server-side — your files never leave our secure pipeline.</p>
+      <p>&copy; 2026 Filemorph. Your files are processed securely and auto-deleted after 1 hour.</p>
     </div>
   </footer>
 

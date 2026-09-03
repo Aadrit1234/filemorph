@@ -6,9 +6,9 @@
   <title>Audio Transcription — Filemorph</title>
   <meta name="description" content="Transcribe audio to text in English and Hindi. Real-time microphone transcription or upload audio files.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <script>if(localStorage.getItem('theme')==='light')document.documentElement.setAttribute('data-theme','light')</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
@@ -17,13 +17,10 @@
   <div class="page-bg"></div>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="scroll-progress" id="scrollProgress"></div>
-  <div class="page-transition" id="pageTransition"></div>
 
   <nav class="navbar" id="navbar">
     <a href="index.html" class="nav-logo">
-      <div class="logo-icon"><i data-lucide="palette"></i></div>
+      <div class="logo-icon"><i data-lucide="zap"></i></div>
       <span>Filemorph</span>
     </a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu"><i data-lucide="menu"></i></button>
@@ -31,7 +28,6 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="convert.html">Convert</a></li>
       <li><a href="transcribe.html" class="active">Transcribe</a></li>
-
     </ul>
     <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode"><i data-lucide="moon"></i></button>
   </nav>
@@ -99,7 +95,7 @@
     <div class="mode-panel" id="panelFile">
       <div class="audio-drop-zone" id="audioDropZone">
         <p style="margin-bottom: 8px;"><i data-lucide="music" style="width:40px;height:40px;"></i></p>
-        <p style="font-weight: 700; font-size: 1.1rem;">Drag &amp; drop audio file here</p>
+        <p style="font-weight: 700; font-size: 1.1rem;">Drag & drop audio file here</p>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">MP3, WAV, OGG, M4A, WebM, MP4</p>
         <input type="file" class="file-input-hidden" id="audioFileInput" accept="audio/*,video/mp4,video/webm">
       </div>
@@ -148,24 +144,24 @@
     <!-- Info -->
     <div class="section reveal" style="padding: 60px 0 0;">
       <div class="clay-card" style="padding: 32px;">
-        <h3 style="font-weight: 800; margin-bottom: 16px;"><i data-lucide="lightbulb"></i> How Transcription Works</h3>
+        <h3 style="font-weight: 800; margin-bottom: 16px;"><i data-lucide="lightbulb"></i> How It Works</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
           <div>
             <h4 style="font-weight: 800; margin-bottom: 8px;"><i data-lucide="mic"></i> Live Transcription</h4>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">
-              Click the microphone button and start speaking. Your speech is converted to text in real-time. Works best in Chrome browser.
+              Click the microphone and start speaking. Real-time results. Works best in Chrome.
             </p>
           </div>
           <div>
             <h4 style="font-weight: 800; margin-bottom: 8px;"><i data-lucide="music"></i> File Transcription</h4>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">
-              Upload an audio file, then click "Transcribe This Audio". The file is played back and captured by the speech recognizer.
+              Upload an audio file, then click "Transcribe This Audio".
             </p>
           </div>
           <div>
             <h4 style="font-weight: 800; margin-bottom: 8px;"><i data-lucide="globe"></i> Multi-Language</h4>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">
-              Supports English, Hindi, Spanish, French, German, Japanese, Chinese, and more. Select your language before recording.
+              English, Hindi, Spanish, French, German, Japanese, Chinese, and more.
             </p>
           </div>
         </div>
@@ -176,8 +172,8 @@
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-col">
-        <h4><i data-lucide="palette"></i> Filemorph</h4>
-        <p style="color: rgba(250,247,244,0.6); font-size: 0.9rem;">Convert files and transcribe audio with 100% content preservation. Free, fast, and private.</p>
+        <h4><i data-lucide="zap"></i> Filemorph</h4>
+        <p style="color: rgba(250,247,244,0.6); font-size: 0.9rem;">Convert files and transcribe audio with 100% content preservation.</p>
       </div>
       <div class="footer-col">
         <h4>Tools</h4>
@@ -186,7 +182,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 Filemorph. Transcription happens entirely in your browser — audio never leaves your device.</p>
+      <p>&copy; 2026 Filemorph. Transcription happens in your browser — audio never leaves your device.</p>
     </div>
   </footer>
 

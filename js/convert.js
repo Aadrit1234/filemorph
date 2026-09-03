@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
-   FILEMORPH — File Conversion Logic
-   Smart format filtering + conversion animation
+   FILEMORPH — File Conversion Logic (v2)
+   Clean workflow: Upload → Select Format → Convert → Download
    ═══════════════════════════════════════════════════════════ */
 
 (function () {
@@ -11,35 +11,38 @@
   let selectedFormat = null;
 
   // ─── DOM Elements ───
+  const stepUpload = document.getElementById('stepUpload');
+  const stepSelect = document.getElementById('stepSelect');
+  const stepConverting = document.getElementById('stepConverting');
+  const stepDone = document.getElementById('stepDone');
+
   const dropZone = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
-  const filePreview = document.getElementById('filePreview');
-  const previewIcon = document.getElementById('previewIcon');
-  const previewName = document.getElementById('previewName');
-  const previewSize = document.getElementById('previewSize');
   const removeFileBtn = document.getElementById('removeFile');
-  const formatSection = document.getElementById('formatSection');
+
+  const fileTypeIcon = document.getElementById('fileTypeIcon');
+  const fileName = document.getElementById('fileName');
+  const fileSize = document.getElementById('fileSize');
+  const fileExt = document.getElementById('fileExt');
+
   const formatTabs = document.getElementById('formatTabs');
   const formatGrid = document.getElementById('formatGrid');
-  const convertBtnWrapper = document.getElementById('convertBtnWrapper');
+  const actionBar = document.getElementById('actionBar');
   const convertBtn = document.getElementById('convertBtn');
-  const conversionAnim = document.getElementById('conversionAnim');
-  const animSource = document.getElementById('animSource');
-  const animSourceIcon = document.getElementById('animSourceIcon');
-  const animSourceLabel = document.getElementById('animSourceLabel');
-  const animTarget = document.getElementById('animTarget');
-  const animTargetIcon = document.getElementById('animTargetIcon');
-  const animTargetLabel = document.getElementById('animTargetLabel');
-  const animArrow = document.getElementById('animArrow');
-  const animProgressFill = document.getElementById('animProgressFill');
-  const animStatus = document.getElementById('animStatus');
-  const conversionResult = document.getElementById('conversionResult');
+
+  const convSourceIcon = document.getElementById('convSourceIcon');
+  const convSourceLabel = document.getElementById('convSourceLabel');
+  const convTargetIcon = document.getElementById('convTargetIcon');
+  const convTargetLabel = document.getElementById('convTargetLabel');
+  const convProgressFill = document.getElementById('convProgressFill');
+  const convStatus = document.getElementById('convStatus');
+
+  const doneInfo = document.getElementById('doneInfo');
   const downloadBtn = document.getElementById('downloadBtn');
-  const resultInfo = document.getElementById('resultInfo');
   const convertAnotherBtn = document.getElementById('convertAnotherBtn');
 
   // ═══════════════════════════════════════════════════════
-  // SMART FORMAT MAP — only what's actually supported
+  // FORMAT DEFINITIONS
   // ═══════════════════════════════════════════════════════
 
   var extensionInfo = {
@@ -70,22 +73,22 @@
   };
 
   var formatMeta = {
-    pdf:  { icon: 'file-text', label: 'PDF',  desc: 'Portable Document' },
-    docx: { icon: 'file', label: 'DOCX', desc: 'Word Document' },
+    pdf:  { icon: 'file-text', label: 'PDF',  desc: 'Document' },
+    docx: { icon: 'file', label: 'DOCX', desc: 'Word' },
     doc:  { icon: 'file', label: 'DOC',  desc: 'Legacy Word' },
-    pptx: { icon: 'presentation', label: 'PPTX', desc: 'PowerPoint' },
-    ppt:  { icon: 'presentation', label: 'PPT',  desc: 'Legacy PowerPoint' },
-    xlsx: { icon: 'table', label: 'XLSX', desc: 'Excel Spreadsheet' },
+    pptx: { icon: 'presentation', label: 'PPTX', desc: 'Slides' },
+    ppt:  { icon: 'presentation', label: 'PPT',  desc: 'Legacy Slides' },
+    xlsx: { icon: 'table', label: 'XLSX', desc: 'Spreadsheet' },
     xls:  { icon: 'table', label: 'XLS',  desc: 'Legacy Excel' },
     txt:  { icon: 'align-left', label: 'TXT',  desc: 'Plain Text' },
     rtf:  { icon: 'align-left', label: 'RTF',  desc: 'Rich Text' },
     html: { icon: 'globe', label: 'HTML', desc: 'Web Page' },
     odt:  { icon: 'file', label: 'ODT',  desc: 'OpenDocument' },
-    csv:  { icon: 'table', label: 'CSV',  desc: 'Spreadsheet' },
+    csv:  { icon: 'table', label: 'CSV',  desc: 'Comma-Separated' },
     png:  { icon: 'image', label: 'PNG',  desc: 'Lossless' },
     jpg:  { icon: 'image', label: 'JPG',  desc: 'Compressed' },
     jpeg: { icon: 'image', label: 'JPEG', desc: 'Compressed' },
-    webp: { icon: 'globe', label: 'WebP', desc: 'Modern Format' },
+    webp: { icon: 'globe', label: 'WebP', desc: 'Modern' },
     tiff: { icon: 'image', label: 'TIFF', desc: 'Print Quality' },
     gif:  { icon: 'image', label: 'GIF',  desc: 'Animated' },
     bmp:  { icon: 'box', label: 'BMP',  desc: 'Bitmap' },
@@ -98,11 +101,9 @@
   };
 
   // ─── Supported conversions per input extension ───
-  var libreAvailable = false; // checked via API on load
+  var libreAvailable = false;
 
-  // Always supported (Sharp + pdf-parse + mammoth)
   var alwaysSupported = {
-    // Images
     jpg:  ['png', 'webp', 'tiff', 'gif', 'bmp'],
     jpeg: ['png', 'webp', 'tiff', 'gif', 'bmp'],
     png:  ['jpg', 'webp', 'tiff', 'gif', 'bmp'],
@@ -112,7 +113,6 @@
     tif:  ['png', 'jpg', 'webp'],
     webp: ['png', 'jpg', 'tiff'],
     svg:  ['png', 'jpg', 'webp'],
-    // Text extraction
     pdf:  ['txt'],
     doc:  ['txt'],
     docx: ['txt'],
@@ -121,11 +121,10 @@
     rtf:  ['txt'],
   };
 
-  // Need LibreOffice
   var libreOnly = {
-    pdf:  ['docx', 'pptx', 'xlsx', 'rtf', 'html'],
-    doc:  ['pdf', 'docx', 'rtf', 'html'],
-    docx: ['pdf', 'rtf', 'html'],
+    pdf:  ['docx', 'pptx', 'xlsx', 'rtf', 'html', 'odt'],
+    doc:  ['pdf', 'docx', 'rtf', 'html', 'odt'],
+    docx: ['pdf', 'rtf', 'html', 'odt'],
     ppt:  ['pdf', 'pptx', 'txt'],
     pptx: ['pdf', 'txt'],
     xls:  ['pdf', 'xlsx', 'csv'],
@@ -158,6 +157,13 @@
     var sizes = ['Bytes', 'KB', 'MB', 'GB'];
     var i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  function showStep(step) {
+    [stepUpload, stepSelect, stepConverting, stepDone].forEach(function(s) {
+      if (s) s.classList.add('hidden');
+    });
+    if (step) step.classList.remove('hidden');
   }
 
   // ═══════════════════════════════════════════════════════
@@ -202,22 +208,21 @@
 
   function handleFileSelect(file) {
     var ext = getExt(file.name);
-    var info = extensionInfo[ext] || { icon: '📄', label: ext.toUpperCase(), category: 'document' };
+    var info = extensionInfo[ext] || { icon: 'file', label: ext.toUpperCase(), category: 'document' };
 
     selectedFile = file;
+    selectedFormat = null;
 
-    // Show preview
-    previewIcon.innerHTML = '<i data-lucide="' + info.icon + '"></i>';
-    if (window.lucide) lucide.createIcons();
-    previewName.textContent = file.name;
-    previewSize.textContent = formatFileSize(file.size);
-    filePreview.classList.add('active');
-    dropZone.style.display = 'none';
+    // Update file card
+    fileTypeIcon.innerHTML = '<i data-lucide="' + info.icon + '"></i>';
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+    fileExt.textContent = info.label;
 
-    // Build supported format grid
+    // Build format grid
     var targets = getSupportedFormats(ext);
     if (targets.length === 0) {
-      if (window.showToast) window.showToast('No supported conversions for this file type', 'error');
+      if (window.showToast) window.showToast('No conversions available for ' + info.label, 'error');
       return;
     }
 
@@ -226,36 +231,35 @@
       var meta = formatMeta[targetExt];
       if (!meta) return;
 
-      var div = document.createElement('div');
-      div.className = 'format-option';
-      div.dataset.format = targetExt;
-      div.innerHTML =
-        '<div class="format-icon"><i data-lucide="' + meta.icon + '"></i></div>' +
-        '<div class="format-label">' + meta.label + '</div>' +
-        '<div class="format-desc">' + meta.desc + '</div>';
-      div.addEventListener('click', function () { selectFormat(targetExt, div); });
-      formatGrid.appendChild(div);
+      var chip = document.createElement('div');
+      chip.className = 'format-chip';
+      chip.dataset.format = targetExt;
+      chip.dataset.category = info.category;
+      chip.innerHTML =
+        '<div class="format-chip-icon"><i data-lucide="' + meta.icon + '"></i></div>' +
+        '<div class="format-chip-text">' +
+          '<div class="format-chip-label">' + meta.label + '</div>' +
+          '<div class="format-chip-desc">' + meta.desc + '</div>' +
+        '</div>';
+      chip.addEventListener('click', function () { selectFormat(targetExt, chip); });
+      formatGrid.appendChild(chip);
     });
 
-    // Show format section
-    formatSection.style.display = 'block';
-
-    // Init Lucide icons in the new grid
-    if (window.lucide) lucide.createIcons();
-    selectedFormat = null;
+    // Show step 2
+    showStep(stepSelect);
+    actionBar.classList.add('hidden');
     convertBtn.disabled = true;
-    convertBtnWrapper.style.display = 'none';
-    conversionAnim.classList.remove('active');
-    conversionResult.classList.remove('active');
+
+    if (window.lucide) lucide.createIcons();
   }
 
   // ─── Select Format ───
   function selectFormat(format, element) {
     selectedFormat = format;
-    formatGrid.querySelectorAll('.format-option').forEach(function (opt) { opt.classList.remove('selected'); });
+    formatGrid.querySelectorAll('.format-chip').forEach(function (c) { c.classList.remove('selected'); });
     element.classList.add('selected');
     convertBtn.disabled = false;
-    convertBtnWrapper.style.display = 'block';
+    actionBar.classList.remove('hidden');
   }
 
   // ─── Remove File ───
@@ -263,18 +267,31 @@
     removeFileBtn.addEventListener('click', function () {
       selectedFile = null;
       selectedFormat = null;
-      filePreview.classList.remove('active');
-      formatSection.style.display = 'none';
-      convertBtnWrapper.style.display = 'none';
-      conversionAnim.classList.remove('active');
-      conversionResult.classList.remove('active');
-      dropZone.style.display = '';
       fileInput.value = '';
+      showStep(stepUpload);
+    });
+  }
+
+  // ─── Category Tabs ───
+  if (formatTabs) {
+    formatTabs.querySelectorAll('.cat-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        formatTabs.querySelectorAll('.cat-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var cat = btn.dataset.category;
+        formatGrid.querySelectorAll('.format-chip').forEach(function (chip) {
+          if (cat === 'all') {
+            chip.style.display = '';
+          } else {
+            chip.style.display = chip.dataset.category === cat ? '' : 'none';
+          }
+        });
+      });
     });
   }
 
   // ═══════════════════════════════════════════════════════
-  // CONVERT WITH ANIMATION
+  // CONVERT
   // ═══════════════════════════════════════════════════════
 
   if (convertBtn) {
@@ -282,44 +299,37 @@
       if (!selectedFile || !selectedFormat) return;
 
       var srcExt = getExt(selectedFile.name).toUpperCase();
-      var srcInfo = extensionInfo[getExt(selectedFile.name)] || { icon: '📄', label: srcExt };
-      var tgtInfo = formatMeta[selectedFormat] || { icon: '📄', label: selectedFormat.toUpperCase() };
+      var srcInfo = extensionInfo[getExt(selectedFile.name)] || { icon: 'file', label: srcExt };
+      var tgtInfo = formatMeta[selectedFormat] || { icon: 'file', label: selectedFormat.toUpperCase() };
+
+      // Show converting step
+      showStep(stepConverting);
 
       // Setup animation
-      convertBtn.disabled = true;
-      convertBtn.style.display = 'none';
-      conversionAnim.classList.add('active');
-      conversionResult.classList.remove('active');
+      convSourceIcon.innerHTML = '<i data-lucide="' + srcInfo.icon + '"></i>';
+      convSourceLabel.textContent = srcInfo.label;
+      convTargetIcon.innerHTML = '<i data-lucide="' + tgtInfo.icon + '"></i>';
+      convTargetLabel.textContent = tgtInfo.label;
+      convProgressFill.style.width = '0%';
+      convStatus.textContent = 'Uploading...';
 
-      animSourceIcon.innerHTML = '<i data-lucide="' + srcInfo.icon + '"></i>';
-      animSourceLabel.textContent = srcInfo.label;
-      animTargetIcon.innerHTML = '<i data-lucide="' + tgtInfo.icon + '"></i>';
-      animTargetLabel.textContent = tgtInfo.label;
+      var convSource = document.querySelector('.conv-source');
+      var convTarget = document.querySelector('.conv-target');
+      convSource.classList.add('processing');
+      convTarget.classList.remove('done');
+
       if (window.lucide) lucide.createIcons();
-      animTarget.classList.remove('done');
-      animSource.classList.remove('processing');
-      animArrow.classList.remove('active');
-      animProgressFill.style.width = '0%';
-      animStatus.textContent = 'Uploading file...';
 
-      // Animate stages
+      // Progress animation
       var progress = 0;
-
-      // Stage 1: Source processing
-      setTimeout(function () {
-        animSource.classList.add('processing');
-        animArrow.classList.add('active');
-      }, 400);
-
-      // Stage 2: Progress
       var interval = setInterval(function () {
         progress = Math.min(progress + Math.random() * 12, 88);
-        animProgressFill.style.width = progress + '%';
+        convProgressFill.style.width = progress + '%';
 
-        if (progress < 30) animStatus.textContent = 'Uploading file...';
-        else if (progress < 55) animStatus.textContent = 'Analyzing content...';
-        else if (progress < 75) animStatus.textContent = 'Converting with full preservation...';
-        else animStatus.textContent = 'Almost done...';
+        if (progress < 30) convStatus.textContent = 'Uploading file...';
+        else if (progress < 55) convStatus.textContent = 'Analyzing content...';
+        else if (progress < 75) convStatus.textContent = 'Converting with full preservation...';
+        else convStatus.textContent = 'Almost done...';
       }, 350);
 
       // API call
@@ -336,33 +346,25 @@
           clearInterval(interval);
 
           // Complete animation
-          animProgressFill.style.width = '100%';
-          animStatus.textContent = 'Conversion complete!';
-          animSource.classList.remove('processing');
-          animArrow.classList.remove('active');
-          animTarget.classList.add('done');
+          convProgressFill.style.width = '100%';
+          convStatus.textContent = 'Done!';
+          convSource.classList.remove('processing');
+          convTarget.classList.add('done');
 
           setTimeout(function () {
-            conversionAnim.classList.remove('active');
-            conversionResult.classList.add('active');
-            var ext = selectedFormat.toUpperCase();
-            resultInfo.textContent = selectedFile.name + ' → ' + result.filename + ' (' + formatFileSize(result.fileSize) + ')';
+            showStep(stepDone);
+            doneInfo.textContent = selectedFile.name + ' → ' + result.filename + ' (' + formatFileSize(result.fileSize) + ')';
             downloadBtn.href = result.downloadUrl;
             downloadBtn.download = result.filename;
-            convertBtn.style.display = '';
-            convertBtn.disabled = false;
 
             if (window.showToast) window.showToast('Conversion successful!', 'success');
-          }, 1200);
+          }, 800);
         })
         .catch(function (err) {
           clearInterval(interval);
-          conversionAnim.classList.remove('active');
-          convertBtn.style.display = '';
-          convertBtn.disabled = false;
-          animSource.classList.remove('processing');
-          animArrow.classList.remove('active');
-          animTarget.classList.remove('done');
+          showStep(stepSelect);
+          convSource.classList.remove('processing');
+          convTarget.classList.remove('done');
 
           if (window.showToast) window.showToast(err.message || 'Conversion failed.', 'error');
         });
@@ -374,17 +376,8 @@
     convertAnotherBtn.addEventListener('click', function () {
       selectedFile = null;
       selectedFormat = null;
-      filePreview.classList.remove('active');
-      formatSection.style.display = 'none';
-      convertBtnWrapper.style.display = 'none';
-      conversionAnim.classList.remove('active');
-      conversionResult.classList.remove('active');
-      dropZone.style.display = '';
       fileInput.value = '';
-      convertBtn.disabled = true;
-      convertBtn.style.display = '';
-      convertBtn.textContent = '🔄 Convert Now';
-      animProgressFill.style.width = '0%';
+      showStep(stepUpload);
     });
   }
 
